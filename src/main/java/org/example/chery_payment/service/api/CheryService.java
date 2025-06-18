@@ -12,5 +12,4 @@ public interface CheryService {
     void deleteById(int id);
 
     Chery update(int id, Chery chery);
-
 }

@@ -53,4 +53,14 @@ public class CheryController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable int id) {
+        try {
+            cheryService.deleteById(id);
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } catch (EntityNotFoundException ex) {
+            return ResponseEntity.notFound().build(); // 404 Not Found
+        }
+    }
 }
