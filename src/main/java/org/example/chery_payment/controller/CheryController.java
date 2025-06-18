@@ -12,20 +12,21 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/chery") // Добавил базовый путь для всех endpoint'ов
 public class CheryController {
     private final CheryService cheryService;
 
-    @PostMapping("/chery/new")
+    @PostMapping("/new")
     public Chery save(@RequestBody Chery chery) {
         return cheryService.save(chery);
     }
 
-    @GetMapping("/chery/all")
+    @GetMapping("/all")
     public List<Chery> getAll() {
         return cheryService.findAll();
     }
 
-    @GetMapping("/chery/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable int id) {
         try {
             Chery chery = cheryService.findById(id);
@@ -35,4 +36,21 @@ public class CheryController {
         }
     }
 
+    @PutMapping("/{id}") // Новый метод для обновления
+    public ResponseEntity<?> update(@PathVariable int id, @RequestBody Chery updatedChery) {
+        try {
+            Chery existingChery = cheryService.findById(id);
+
+            // Обновляем поля существующей записи
+            existingChery.setBalance(updatedChery.getBalance());
+            existingChery.setNumber(updatedChery.getNumber());
+            existingChery.setPaymentDate(updatedChery.getPaymentDate());
+            // Добавь другие поля, которые нужно обновлять
+
+            Chery savedChery = cheryService.save(existingChery);
+            return ResponseEntity.ok(savedChery);
+        } catch (EntityNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
+    }
 }
