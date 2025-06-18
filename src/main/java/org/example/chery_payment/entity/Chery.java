@@ -39,5 +39,8 @@ public class Chery {
 
     private float balance;
 
+    @OneToOne
+    @JoinColumn(name = "card_id", referencedColumnName = "id")
+    private Card card;
 
 }
