@@ -26,7 +26,7 @@ public class Card {
     @NotNull(message = "Number cannot be null")
     private int number;
 
-    @OneToOne(mappedBy = "card")
-    @JsonIgnore
-    private Chery chery;
+//    @OneToOne(mappedBy = "card")
+//    @JsonIgnore
+//    private Chery chery;
 }
