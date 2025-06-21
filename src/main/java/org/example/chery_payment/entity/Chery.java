@@ -6,8 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -16,6 +19,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Chery {
 
     @Id
@@ -39,5 +43,24 @@ public class Chery {
     @OneToOne
     @JoinColumn(name = "card_id", referencedColumnName = "id")
     private Card card;
+
+    @LastModifiedDate
+    @Column(name = "lastmodified")
+    private LocalDateTime lastModified;
+
+    @PrePersist
+    @PreUpdate
+    public void updateTimestamps() {
+        this.lastModified = LocalDateTime.now();
+    }
+
+    public LocalDateTime getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(LocalDateTime lastModified) {
+        this.lastModified = lastModified;
+    }
+
 
 }

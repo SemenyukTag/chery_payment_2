@@ -3,10 +3,13 @@ package org.example.chery_payment.service.api;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.chery_payment.entity.Chery;
+import org.example.chery_payment.entity.CheryAudit;
+import org.example.chery_payment.repository.CheryAuditRepository;
 import org.example.chery_payment.repository.CheryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -15,10 +18,13 @@ import java.util.List;
 public class CheryServiceImpl implements CheryService {
 
     private final CheryRepository cheryRepository;
+    private final CheryAuditRepository cheryAuditRepository;
 
     @Override
     public Chery save(Chery chery) {
-        return cheryRepository.save(chery);
+        Chery savedChery = cheryRepository.save(chery);
+        logAuditAction(savedChery.getId(), "CREATE", "Entity created");
+        return savedChery;
     }
 
     @Override
@@ -36,34 +42,57 @@ public class CheryServiceImpl implements CheryService {
 
     @Override
     public void deleteById(int id) {
-        if (!cheryRepository.existsById(id)) {
-            throw new EntityNotFoundException("Chery not found with id: " + id);
-        }
-        cheryRepository.deleteById(id);
+        Chery chery = findById(id);
+        cheryRepository.delete(chery);
+        logAuditAction(id, "DELETE", "Entity deleted");
     }
-
-
-    //public Chery update() {
-    //    return update(0, null);
-    //}
-
 
     @Override
     public Chery update(int id, Chery chery) {
-        if (chery == null) {
-            throw new IllegalArgumentException("Chery update data cannot be null");
-        }
-
         Chery existingChery = cheryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Chery not found with id: " + id));
 
-        existingChery.setNumber(chery.getNumber());
-        existingChery.setBalance(chery.getBalance());
+        // Обновляем только изменённые поля
+        if (chery.getNumber() != 0) {
+            existingChery.setNumber(chery.getNumber());
+        }
 
         if (chery.getPaymentDate() != null) {
             existingChery.setPaymentDate(chery.getPaymentDate());
         }
 
+        // Явное обновление времени (если не используется @PreUpdate)
+        existingChery.setLastModified(LocalDateTime.now());
+
+        // Сохраняем изменения
         return cheryRepository.save(existingChery);
+    }
+
+    @Override
+    public Chery updateWithTracking(int id, Chery chery, String changeDescription) {
+        Chery updated = update(id, chery);
+        logAuditAction(id, "MANUAL_UPDATE", changeDescription);
+        return updated;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CheryAudit> getAuditLogsForEntity(int entityId) {
+        return cheryAuditRepository.findByEntityIdOrderByChangedAtDesc(entityId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CheryAudit> getAuditLogsByAction(String action) {
+        return cheryAuditRepository.findByActionOrderByChangedAtDesc(action);
+    }
+
+    private void logAuditAction(int entityId, String action, String description) {
+        CheryAudit audit = new CheryAudit();
+        audit.setEntityId(entityId);
+        audit.setAction(action);
+        audit.setChangeDescription(description);
+        audit.setChangedAt(LocalDateTime.now());
+        cheryAuditRepository.save(audit);
     }
 }
