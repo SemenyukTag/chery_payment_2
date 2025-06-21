@@ -22,18 +22,15 @@ public class Chery {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-//    @Column(name = "number"),
     @Column(nullable = false)
     @NotNull(message = "Number cannot be null")
     private int number;
 
-//    @Column(name = "payment_date")
     @Column(name = "payment_date", nullable = false)
     @NotNull(message = "Payment date cannot be null")
     private LocalDate paymentDate;
 
 
-//    @Column(name = "balance")
     @Column(nullable = false)
     @NotNull(message = "Balance cannot be null")
 
