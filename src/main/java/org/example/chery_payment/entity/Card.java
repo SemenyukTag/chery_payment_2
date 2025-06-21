@@ -1,5 +1,6 @@
 package org.example.chery_payment.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -26,5 +27,6 @@ public class Card {
     private int number;
 
     @OneToOne(mappedBy = "card")
+    @JsonIgnore
     private Chery chery;
 }
