@@ -2,6 +2,7 @@ package org.example.chery_payment.service.api;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.example.chery_payment.entity.Card;
 import org.example.chery_payment.entity.Chery;
 import org.example.chery_payment.entity.CheryAudit;
 import org.example.chery_payment.repository.CheryAuditRepository;
@@ -94,5 +95,15 @@ public class CheryServiceImpl implements CheryService {
         audit.setChangeDescription(description);
         audit.setChangedAt(LocalDateTime.now());
         cheryAuditRepository.save(audit);
+    }
+
+    @Override
+    public List<Chery> findAllByCard(Card card) {
+        return cheryRepository.findByCard(card);
+    }
+
+    @Override
+    public List<Chery> findAllByCardId(Integer cardId) {
+        return cheryRepository.findByCardId(cardId);
     }
 }

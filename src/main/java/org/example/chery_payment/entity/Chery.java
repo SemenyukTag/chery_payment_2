@@ -34,14 +34,13 @@ public class Chery {
     @NotNull(message = "Payment date cannot be null")
     private LocalDate paymentDate;
 
-
     @Column(nullable = false)
     @NotNull(message = "Balance cannot be null")
-
     private float balance;
 
-    @OneToOne
-    @JoinColumn(name = "card_id", referencedColumnName = "id")
+    // Оставляем только одну связь с Card (выберите нужный вариант)
+    @ManyToOne
+    @JoinColumn(name = "card_id") // или correct_card_id
     private Card card;
 
     @LastModifiedDate
@@ -53,14 +52,4 @@ public class Chery {
     public void updateTimestamps() {
         this.lastModified = LocalDateTime.now();
     }
-
-    public LocalDateTime getLastModified() {
-        return lastModified;
-    }
-
-    public void setLastModified(LocalDateTime lastModified) {
-        this.lastModified = lastModified;
-    }
-
-
 }

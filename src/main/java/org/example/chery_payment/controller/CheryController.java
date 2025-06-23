@@ -2,8 +2,12 @@ package org.example.chery_payment.controller;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.example.chery_payment.entity.Card;
 import org.example.chery_payment.entity.Chery;
+import org.example.chery_payment.repository.CardRepository;
+import org.example.chery_payment.repository.CheryRepository;
 import org.example.chery_payment.service.api.CheryService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -63,4 +67,40 @@ public class CheryController {
             return ResponseEntity.notFound().build(); // 404 Not Found
         }
     }
+
+
+    @PostMapping("/by-card")
+    public ResponseEntity<List<Chery>> getAllCheriesByCard(@RequestBody Card card) {
+        System.out.println("Received Card ID: " + card.getId());
+        List<Chery> cheries = cheryService.findAllByCard(card);
+        System.out.println("Found cheries: " + cheries.size());
+        return ResponseEntity.ok(cheries);
+    }
+
+    private final CheryRepository cheryRepository;
+
+
+    @GetMapping("/by-card/{cardId}")
+    public ResponseEntity<List<Chery>> getCheryByCardId(@PathVariable Integer cardId) {
+        List<Chery> cheryList = cheryRepository.findByCard_Id(cardId);
+        return ResponseEntity.ok(cheryList);
+    }
+
+    @Autowired
+    private CardRepository cardRepository;
+
+    @GetMapping("/card/{id}")
+    public ResponseEntity<Card> getCardById(@PathVariable int id) {
+        return cardRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/with-payments")
+    public ResponseEntity<Card> getCardWithPayments(@PathVariable Integer id) {
+        return cardRepository.findWithCheriesById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
+
